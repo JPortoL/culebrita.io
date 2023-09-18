@@ -29,7 +29,7 @@ def main():
     def arriba():
         cabeza.direccion = 'Up'
         movimiento_snake(cabeza)
-        print("arriaba")
+        print("arriba")
     def abajo():
         cabeza.direccion = 'Down'
         movimiento_snake(cabeza)
