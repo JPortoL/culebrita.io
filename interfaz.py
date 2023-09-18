@@ -1,6 +1,7 @@
 import turtle
 
 
+
 grid_size = 13
 screen_size = 650
 factor_mv = screen_size / grid_size
