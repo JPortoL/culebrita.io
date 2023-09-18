@@ -32,7 +32,7 @@ def juego():
     cabeza_x = COLUMNAS // 2
     cabeza_y = FILAS // 2
     serpiente = [(cabeza_x, cabeza_y), (cabeza_x - 1, cabeza_y), (cabeza_x - 2, cabeza_y)]
-    direccion = 'derecha'
+    direccion = 'arriba'
 
     manzana_x = random.randint(0, COLUMNAS - 1)
     manzana_y = random.randint(0, FILAS - 1)
@@ -86,7 +86,8 @@ def juego():
 
         # Dibujar serpiente
         for segmento in serpiente:
-            pygame.draw.rect(pantalla, GRIS_CLARO, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+            
+            pygame.draw.rect(pantalla, GRIS, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
         # Dibujar manzana
         pygame.draw.rect(pantalla, NEGRO, (manzana_x * TAMANO_CELDA, manzana_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
