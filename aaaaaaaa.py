@@ -1,5 +1,6 @@
 import pygame
 import random
+import sys
 
 # Inicializar pygame
 pygame.init()
@@ -10,12 +11,48 @@ GRIS = (169, 169, 169)
 GRIS_CLARO = (211, 211, 211)
 NEGRO = (0, 0, 0)
 
+GREEN = (0, 255, 0)
+
 # Configuración de la pantalla
 ANCHO = 390
 ALTO = 420
 TAMANO_CELDA = 30
 FILAS = 13
 COLUMNAS = 13
+
+WIDTH, HEIGHT = 390, 420
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Culebrita")
+
+font = pygame.font.Font(None, 28)
+
+def draw_text(text, x, y, color):
+    text_surface = font.render(text, True, color)
+    text_rect = text_surface.get_rect()
+    text_rect.center = (x, y)
+    screen.blit(text_surface, text_rect)
+
+def main_menu():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                # Iniciar el juego cuando se presiona la barra espaciadora
+                    juego()
+
+    # Dibujar el fondo del menú
+        screen.fill(BLANCO)
+
+        # Dibujar el título
+        draw_text("Culebrita", WIDTH // 2, HEIGHT // 4, GREEN)
+
+        # Instrucciones
+        draw_text("Presiona la barra espaciadora para jugar", WIDTH // 2, HEIGHT // 2, GREEN)
+
+        pygame.display.flip()
 
 # Inicializar pantalla
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
@@ -63,8 +100,8 @@ def juego():
                     direccion = 'derecha'
                 elif keys[pygame.K_UP]:
                     direccion = 'arriba'
-                elif keys[pygame.K_DOWN]:
-                    direccion = 'abajo'
+               
+                
         else:
             # Movimiento de la serpiente después de comenzar el juego
             if keys[pygame.K_LEFT] and direccion != 'derecha':
@@ -75,6 +112,8 @@ def juego():
                 direccion = 'arriba'
             elif keys[pygame.K_DOWN] and direccion != 'arriba':
                 direccion = 'abajo'
+            elif keys[pygame.K_SPACE]:
+                direccion = None
 
             if direccion == 'izquierda':
                 cabeza_x -= 1
@@ -84,11 +123,10 @@ def juego():
                 cabeza_y -= 1
             elif direccion == 'abajo':
                 cabeza_y += 1
-
+            
             # Verificar colisión con los bordes
             if cabeza_x < 0 or cabeza_x >= COLUMNAS or cabeza_y < 0 or cabeza_y >= FILAS:
-                perdido = True
-                
+                perdido = True            
 
             # Verificar colisión con la serpiente
             if (cabeza_x, cabeza_y) in serpiente[1:]:
@@ -98,7 +136,6 @@ def juego():
 
             # Comer la manzana
             if cabeza_x == manzana_x and cabeza_y == manzana_y:
-                serpiente.append((manzana_x, manzana_y))
                 manzana_x, manzana_y = generar_posicion_manzana(serpiente)
                 puntuacion += 1  # Incrementar la puntuación
             else:
@@ -110,9 +147,9 @@ def juego():
         # Dibujar serpiente
         for segmento in serpiente:
             if segmento == serpiente[0]:
-                pygame.draw.rect(pantalla, GRIS, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+                pygame.draw.ellipse(pantalla, GRIS, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
             else:
-                pygame.draw.rect(pantalla, GRIS_CLARO, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+                pygame.draw.ellipse(pantalla, GRIS_CLARO, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
         # Dibujar manzana
         pygame.draw.rect(pantalla, NEGRO, (manzana_x * TAMANO_CELDA, manzana_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
@@ -125,7 +162,7 @@ def juego():
         pantalla.blit(texto_puntuacion, (10, 395))
 
         pygame.display.update()
-        pygame.time.delay(100)
+        pygame.time.delay(90)
 
     #Mostrar mensaje de "¡Perdiste!" en la pantalla
     pantalla.fill(BLANCO)
@@ -139,4 +176,4 @@ def juego():
     pygame.display.update()
     pygame.time.delay(2000)  # Esperar 2 segundos antes de salir
 
-juego()
+main_menu()
