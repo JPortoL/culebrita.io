@@ -5,6 +5,8 @@ import sys
 # Inicializar pygame
 pygame.init()
 
+#(O(1))  ----- TODAS LAS VARIABLES
+
 # Definir colores
 BLANCO = (255, 255, 255)
 GRIS = (169, 169, 169)
@@ -25,6 +27,8 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Culebrita")
 
 font = pygame.font.Font(None, 28)
+
+# O(1) HASTA ACA
 
 def draw_text(text, x, y, color):
     text_surface = font.render(text, True, color)
@@ -64,13 +68,15 @@ def dibujar_cuadricula():
         for columna in range(COLUMNAS):
             pygame.draw.rect(pantalla, GRIS, (columna * TAMANO_CELDA, fila * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA), 1)
 
+# O(N) generar_posicion_manzana ------ 
+
 def generar_posicion_manzana(serpiente):
     while True:
-        manzana_x = random.randint(0, COLUMNAS - 1)
-        manzana_y = random.randint(0, FILAS - 1)
-        if (manzana_x, manzana_y) not in serpiente:
-            return manzana_x, manzana_y
-
+        posibles_posiciones = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
+        posibles_posiciones = [pos for pos in posibles_posiciones if pos not in serpiente]
+        if posibles_posiciones:
+            return random.choice(posibles_posiciones)
+    
 # Función principal del juego
 def juego():
     cabeza_x = COLUMNAS // 2
@@ -81,7 +87,7 @@ def juego():
     manzana_x, manzana_y = 9,3
 
     puntuacion = 0  # Inicializar la puntuación
-
+    
     perdido = False
  
     while not perdido:
