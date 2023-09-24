@@ -30,6 +30,9 @@ font = pygame.font.Font(None, 28)
 
 # O(1) HASTA ACA
 
+# O(N)
+disponibles = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
+
 def draw_text(text, x, y, color):
     text_surface = font.render(text, True, color)
     text_rect = text_surface.get_rect()
@@ -51,7 +54,7 @@ def main_menu():
         screen.fill(BLANCO)
 
         # Dibujar el título
-        draw_text("Culebrita", WIDTH // 2, HEIGHT // 4, GREEN)
+        draw_text("Culebrita.io", WIDTH // 2, HEIGHT // 4, GREEN)
 
         # Instrucciones
         draw_text("Presiona la barra espaciadora para jugar", WIDTH // 2, HEIGHT // 2, GREEN)
@@ -60,7 +63,7 @@ def main_menu():
 
 # Inicializar pantalla
 pantalla = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Juego de la Serpiente")
+pygame.display.set_caption("Juego de la Culebrita")
 
 # Función para dibujar la cuadrícula
 def dibujar_cuadricula():
@@ -68,14 +71,17 @@ def dibujar_cuadricula():
         for columna in range(COLUMNAS):
             pygame.draw.rect(pantalla, GRIS, (columna * TAMANO_CELDA, fila * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA), 1)
 
-# O(N) generar_posicion_manzana ------ 
+# O(1) generar_posicion_manzana ------ 
 
-def generar_posicion_manzana(serpiente):
-    while True:
-        posibles_posiciones = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
-        posibles_posiciones = [pos for pos in posibles_posiciones if pos not in serpiente]
-        if posibles_posiciones:
-            return random.choice(posibles_posiciones)
+def generar_posicion_manzana(disponibles):
+    (manzana_x, manzana_y) = random.choice(disponibles)
+    return manzana_x, manzana_y
+    # while True:
+    #     posibles_posiciones = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
+    #     posibles_posiciones = [pos for pos in posibles_posiciones if pos not in serpiente]
+    #     if posibles_posiciones:
+    #         return random.choice(posibles_posiciones)
+
     
 # Función principal del juego
 def juego():
@@ -84,6 +90,7 @@ def juego():
     serpiente = [(cabeza_x, cabeza_y), (cabeza_x , cabeza_y+1), (cabeza_x , cabeza_y+2)]
     direccion = None
 
+    # Posición Inicial Manzana
     manzana_x, manzana_y = 9,3
 
     puntuacion = 0  # Inicializar la puntuación
@@ -118,8 +125,7 @@ def juego():
                 direccion = 'arriba'
             elif keys[pygame.K_DOWN] and direccion != 'arriba':
                 direccion = 'abajo'
-            elif keys[pygame.K_SPACE]:
-                direccion = None
+            
 
             if direccion == 'izquierda':
                 cabeza_x -= 1
@@ -139,13 +145,17 @@ def juego():
                 perdido = True
 
             serpiente.insert(0, (cabeza_x, cabeza_y))
+            #print("-"*50, "\n\n\n",disponibles)
+            disponibles.remove(serpiente[0])
 
             # Comer la manzana
             if cabeza_x == manzana_x and cabeza_y == manzana_y:
-                manzana_x, manzana_y = generar_posicion_manzana(serpiente)
+                manzana_x, manzana_y = generar_posicion_manzana(disponibles)
                 puntuacion += 1  # Incrementar la puntuación
+                
             else:
-                serpiente.pop()
+                disponibles.append(serpiente.pop())
+
 
         # Dibujar fondo
         pantalla.fill(BLANCO)
@@ -168,7 +178,7 @@ def juego():
         pantalla.blit(texto_puntuacion, (10, 395))
 
         pygame.display.update()
-        pygame.time.delay(90)
+        pygame.time.delay(100)
 
     #Mostrar mensaje de "¡Perdiste!" en la pantalla
     pantalla.fill(BLANCO)
