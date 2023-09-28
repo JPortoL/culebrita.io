@@ -91,11 +91,11 @@ def juego():
     cabeza_y = FILAS // 2
     serpiente = [(cabeza_x, cabeza_y), (cabeza_x , cabeza_y+1), (cabeza_x , cabeza_y+2)]
     direccion = None
-    zapote_timido = 0
+    zapote_timido = -1
     zapote_maduro = 0
     # Posición Inicial zapote
     zapote_x, zapote_y = 9,3
-    pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+    
     
 
     puntuacion = 0  # Inicializar la puntuación
@@ -141,7 +141,7 @@ def juego():
             elif direccion == 'abajo':
                 cabeza_y += 1
             
-            if any(keys):
+            if any(keys) and zapote_timido < zapote_maduro:
                 zapote_timido += 1
 
             # Verificar colisión con los bordes
@@ -157,16 +157,18 @@ def juego():
             if perdido != True:
                 disponibles.remove(serpiente[0])
 
-            # Comer elle zapote
-            if cabeza_x == zapote_x and cabeza_y == zapote_y  :
+            # Comer el zapote
+            if cabeza_x == zapote_x and cabeza_y == zapote_y:
                 zapote_x, zapote_y, zapote_maduro = generar_posicion_zapote(disponibles)
-            
-                if zapote_timido == zapote_maduro:
-                    zapote_timido = 0
-                    pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
-                
+                zapote_timido = 0
+                puntuacion += 1
             else:
-                disponibles.append(serpiente.pop())
+                disponibles.append(serpiente.pop())  
+            
+            if zapote_timido == zapote_maduro:
+                pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+            print(f"zapote_timido: {zapote_timido}\nzapote_maduro: {zapote_maduro}")   
+            
 
 
         # Dibujar fondo
@@ -179,14 +181,15 @@ def juego():
             else:
                 pygame.draw.ellipse(pantalla, GRIS_CLARO, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
         # Dibujar zapote
-        # pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+        if zapote_maduro == zapote_timido:
+            pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
         # Dibujar cuadrícula
         dibujar_cuadricula()
 
         # Mostrar puntuación en la pantalla
         fuente = pygame.font.Font(None, 36)
-        texto_puntuacion = fuente.render(f"Puntuación: {zapote_timido}", True, NEGRO)
+        texto_puntuacion = fuente.render(f"Puntuación: {puntuacion}", True, NEGRO)
         pantalla.blit(texto_puntuacion, (10, 395))
 
         pygame.display.update()
