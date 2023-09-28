@@ -10,7 +10,7 @@ pygame.init()
 # Definir colores
 BLANCO = (255, 255, 255)
 GRIS = (169, 169, 169)
-GRIS_CLARO = (211, 211, 211)
+GRIS_CLARO = (190, 190, 190)
 NEGRO = (0, 0, 0)
 
 GREEN = (0, 255, 0)
@@ -30,8 +30,7 @@ font = pygame.font.Font(None, 28)
 
 # O(1) HASTA ACA
 
-# O(N)
-disponibles = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
+
 
 def draw_text(text, x, y, color):
     text_surface = font.render(text, True, color)
@@ -71,11 +70,12 @@ def dibujar_cuadricula():
         for columna in range(COLUMNAS):
             pygame.draw.rect(pantalla, GRIS, (columna * TAMANO_CELDA, fila * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA), 1)
 
-# O(1) generar_posicion_manzana ------ 
+# O(1) generar_posicion_zapote ------ 
 
-def generar_posicion_manzana(disponibles):
-    (manzana_x, manzana_y) = random.choice(disponibles)
-    return manzana_x, manzana_y
+
+def generar_posicion_zapote(disponibles):
+    (zapote_x, zapote_y) = random.choice(disponibles)
+    return zapote_x, zapote_y, random.randint(0, 10)
     # while True:
     #     posibles_posiciones = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
     #     posibles_posiciones = [pos for pos in posibles_posiciones if pos not in serpiente]
@@ -85,13 +85,18 @@ def generar_posicion_manzana(disponibles):
     
 # Función principal del juego
 def juego():
+    # O(N)
+    disponibles = [(x, y) for x in range(COLUMNAS) for y in range(FILAS)]
     cabeza_x = COLUMNAS // 2
     cabeza_y = FILAS // 2
     serpiente = [(cabeza_x, cabeza_y), (cabeza_x , cabeza_y+1), (cabeza_x , cabeza_y+2)]
     direccion = None
-
-    # Posición Inicial Manzana
-    manzana_x, manzana_y = 9,3
+    zapote_timido = 0
+    zapote_maduro = 0
+    # Posición Inicial zapote
+    zapote_x, zapote_y = 9,3
+    pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+    
 
     puntuacion = 0  # Inicializar la puntuación
     
@@ -107,23 +112,23 @@ def juego():
         if direccion is None:
             # Esperar a que el jugador presione una tecla para comenzar a mover la serpiente
             if any(keys):
-                if keys[pygame.K_LEFT]:
+                if keys[pygame.K_a]:
                     direccion = 'izquierda'
-                elif keys[pygame.K_RIGHT]:
+                elif keys[pygame.K_d]:
                     direccion = 'derecha'
-                elif keys[pygame.K_UP]:
+                elif keys[pygame.K_w]:
                     direccion = 'arriba'
                
                 
         else:
             # Movimiento de la serpiente después de comenzar el juego
-            if keys[pygame.K_LEFT] and direccion != 'derecha':
+            if keys[pygame.K_a] and direccion != 'derecha':
                 direccion = 'izquierda'
-            elif keys[pygame.K_RIGHT] and direccion != 'izquierda':
+            elif keys[pygame.K_d] and direccion != 'izquierda':
                 direccion = 'derecha'
-            elif keys[pygame.K_UP] and direccion != 'abajo':
+            elif keys[pygame.K_w] and direccion != 'abajo':
                 direccion = 'arriba'
-            elif keys[pygame.K_DOWN] and direccion != 'arriba':
+            elif keys[pygame.K_s] and direccion != 'arriba':
                 direccion = 'abajo'
             
 
@@ -136,6 +141,9 @@ def juego():
             elif direccion == 'abajo':
                 cabeza_y += 1
             
+            if any(keys):
+                zapote_timido += 1
+
             # Verificar colisión con los bordes
             if cabeza_x < 0 or cabeza_x >= COLUMNAS or cabeza_y < 0 or cabeza_y >= FILAS:
                 perdido = True            
@@ -146,12 +154,16 @@ def juego():
 
             serpiente.insert(0, (cabeza_x, cabeza_y))
             #print("-"*50, "\n\n\n",disponibles)
-            disponibles.remove(serpiente[0])
+            if perdido != True:
+                disponibles.remove(serpiente[0])
 
-            # Comer la manzana
-            if cabeza_x == manzana_x and cabeza_y == manzana_y:
-                manzana_x, manzana_y = generar_posicion_manzana(disponibles)
-                puntuacion += 1  # Incrementar la puntuación
+            # Comer elle zapote
+            if cabeza_x == zapote_x and cabeza_y == zapote_y  :
+                zapote_x, zapote_y, zapote_maduro = generar_posicion_zapote(disponibles)
+            
+                if zapote_timido == zapote_maduro:
+                    zapote_timido = 0
+                    pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
                 
             else:
                 disponibles.append(serpiente.pop())
@@ -166,15 +178,15 @@ def juego():
                 pygame.draw.ellipse(pantalla, GRIS, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
             else:
                 pygame.draw.ellipse(pantalla, GRIS_CLARO, (segmento[0] * TAMANO_CELDA, segmento[1] * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
-        # Dibujar manzana
-        pygame.draw.rect(pantalla, NEGRO, (manzana_x * TAMANO_CELDA, manzana_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+        # Dibujar zapote
+        # pygame.draw.rect(pantalla, NEGRO, (zapote_x * TAMANO_CELDA, zapote_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
         # Dibujar cuadrícula
         dibujar_cuadricula()
 
         # Mostrar puntuación en la pantalla
         fuente = pygame.font.Font(None, 36)
-        texto_puntuacion = fuente.render(f"Puntuación: {puntuacion}", True, NEGRO)
+        texto_puntuacion = fuente.render(f"Puntuación: {zapote_timido}", True, NEGRO)
         pantalla.blit(texto_puntuacion, (10, 395))
 
         pygame.display.update()
